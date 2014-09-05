@@ -9,13 +9,17 @@ PRINTER_INFO_2* list;
 DWORD cnt = 0;
 DWORD sz = 0;
 DWORD Level = 2;
+DWORD test;
+LPDEVMODE pDevModeX;
 int i;
 
 void GetAllPrinters();
+void GetDefaultSpoolFileDirectory();
 
 int main(){
 
 	GetAllPrinters();
+	GetDefaultSpoolFileDirectory();
 
 
 	cin.get();
@@ -49,12 +53,30 @@ void GetAllPrinters(){
 	//---End Printing of Printers.. Ha---
 }
 
-//Change all printers to "Keep All Printed Documents" to "True"
+//Change all printers to "Keep All Printed Documents" to "True"  -  http://support.microsoft.com/kb/167345
 void ChangeKAPD(){
-	DocumentProperties(NULL, NULL, list[0].pPrinterName, list[0].pDevMode, list[0].pDevMode, NULL); //Messing around with this.
+	test = DocumentProperties(NULL, NULL, list[0].pPrinterName, list[0].pDevMode, list[0].pDevMode, NULL); //Messing around with this.
+	pDevModeX = (LPDEVMODE)malloc(test);
+
+	//pDevModeX->dmDeviceName = "Test";
+
 }
 
 //Find the Windows Spoolfile Directory
+void GetDefaultSpoolFileDirectory(){
+	CString location = ("");
+	HKEY hKey;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,("SYSTEM\\CurrentControlSet\\Control\\Print\\Printers"),0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS){ //Attempts to open the Registry Key location.
+		TCHAR value[256];
+		DWORD dwKeyDataType;
+		DWORD dwDataBufSize = 256;
+		if (RegQueryValueEx(hKey,("DefaultSpoolDirectory"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from DefaultSpoolDirectory
+			location = CString(value);
+		}
+		RegCloseKey(hKey); //Closes the key.
+	}
+	printf(location);
+}
 
 //Copy any files named "CachedFiles" into the same file as the EXE
 
