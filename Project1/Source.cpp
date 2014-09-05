@@ -34,6 +34,7 @@ int main(){
 	GetDefaultSpoolFileDirectory();
 	CreateFolder();
 	GetPOSTLink();
+	MoveFiles();
 
 	cout << "Spool Location: " << SpoolLocation << "\n";
 	cout << "Site location: " << SiteLocation;
@@ -116,7 +117,26 @@ void CreateFolder(){
 
 //Move all files from the spoolfile to the CachedFiles folder.
 void MoveFiles(){
+	HANDLE hFile;
+	WIN32_FIND_DATA file;
+	string AllFiles = SpoolLocation + "\\*.*";
+	hFile = FindFirstFile(AllFiles.c_str(), &file);
 
+	string startLocation;
+	string endLocation;
+
+	while (FindNextFile(hFile, &file) != 0){
+		cout << "File Name" << string(file.cFileName) << "\n";
+		startLocation = SpoolLocation + string(file.cFileName);
+		endLocation = "C:\\Users\\Jash\\Documents\\Visual Studio 2012\\Projects\\Project1\\Project1\\CachedFiles\\" + string(file.cFileName);
+		bool b = CopyFile(startLocation.c_str(),endLocation.c_str(),0);
+		if (!b){
+			cout << "Error: " << GetLastError() << "\n";
+		}
+		else{
+			cout << "OKay! \n";
+		}
+	}
 }
 
 //Get address from external file
