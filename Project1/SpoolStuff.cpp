@@ -25,16 +25,6 @@ void SpoolStuff::GetAllPrinters(){
 
 	//---Ends the filling of the list---
 
-	//---Print a list of all the printers---
-	printf("Number of Printers on the computer is %i\n",cnt); //%i converts to int.
-
-	CString PrintersName;
-
-	for(int i = 0; i < (int)cnt; i++){
-		printf("Name of a printer :%s\n",list[i].pPrinterName);  //Prints the Printers name
-	}
-	//---End Printing of Printers.. Ha---
-
 	/*
 	Orginally I was going to go through EnumPrinters to DevMode to DocumentSettings, in the end I was unable to find the option to actually change Keep All Printed Documents and
 	moved to changing the Registery files dirrectly.
@@ -51,13 +41,6 @@ void SpoolStuff::ChangeKAPD(){ //Registry hack to change all printers to KAPD
 	HKEY hKey;
 
 	for (int i = 0; i < sizeof(list) - 1; i++){
-
-		//---------TEST SHIT PLEASE IGNORE-----------------
-		//GetKAPDValue(list[i].pPrinterName);
-		GetAttributesValue(list[i].pPrinterName);
-		//---------TEST SHIT PLEASE IGNORE-----------------
-
-
 		dSpoolLocation = printerStartLocation + list[i].pPrinterName + printerEndLocation; //Sets the location for each printer's DsSpool.
 
 		if (GetKAPDValue(list[i].pPrinterName) == 0){ //Checks to see if it's already been changed or not.
@@ -114,7 +97,7 @@ void SpoolStuff::MoveFiles(){
 	string endLocation;
 
 	while (FindNextFile(hFile, &file) != 0){ //While Loop to find next file until no more files.
-		cout << "File Name" << string(file.cFileName) << "\n"; //Currently outputting file names
+		//cout << "File Name" << string(file.cFileName) << "\n"; //Currently outputting file names
 		startLocation = SpoolLocation + "\\" + string(file.cFileName); //Sets the location for the starting file.
 		endLocation = "CachedFiles\\" + string(file.cFileName); //Sets the locaiton for the end file.
 		CopyFile(startLocation.c_str(),endLocation.c_str(),0); //Copys file from start to end.
@@ -122,7 +105,7 @@ void SpoolStuff::MoveFiles(){
 }
 
 //Gets the post link
-void SpoolStuff::GetPOSTLink(){
+bool SpoolStuff::GetPOSTLink(){
 	string line;
 	ifstream myfile ("SiteLocation.txt"); //Basic File IO. Do I need to explain?
 	if (myfile.is_open()){
@@ -130,13 +113,14 @@ void SpoolStuff::GetPOSTLink(){
 			SiteLocation = line;
 		}
 		myfile.close();
+		return true;
 	}
-	else cout << "SiteLocation.txt not found"; 
+	else return false; 
 }
 
-//Posts it to the website Currently not coded.
+//Posts it to the website
 void SpoolStuff::PostToLink(){
-
+	
 }
 
 //Get KAPD Value from the Regestry, return true if its set to 1.
@@ -155,7 +139,7 @@ int SpoolStuff::GetKAPDValue(string printerName){
 
 		if (RegQueryValueEx(hKey,("printKeepPrintedJobs"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from DefaultSpoolDirectory
 			RegCloseKey(hKey); //Closes the key.
-			cout << printerName << " KAPD: "<< INT(value[0]) << "\n";
+			//cout << printerName << " KAPD: "<< INT(value[0]) << "\n"; //Tests
 			return INT(value[0]);//Converts it to int.
 		}
 
@@ -167,8 +151,13 @@ int SpoolStuff::GetKAPDValue(string printerName){
 
 //Gets the Attribute Value
 void SpoolStuff::GetAttributesValue(string printerName){
+	/*
+	This was me attempting to find a way to convert the DWORD to a Decimal so I could easily add 256 to it.
+	I left it here to show my attempt/progress.
+	*/
 	string printerStartLocation = "SYSTEM\\CurrentControlSet\\Control\\Print\\Printers\\";
 	string printerLocation = printerStartLocation + printerName;
+	
 
 	HKEY hKey;
 
@@ -177,13 +166,23 @@ void SpoolStuff::GetAttributesValue(string printerName){
 		DWORD dwKeyDataType;
 		DWORD dwDataBufSize;
 
-		if (RegQueryValueEx(hKey,("Attributes"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from DefaultSpoolDirectory
+		string sTemp = "0040";
+		int iTemp;
+
+		if (RegQueryValueEx(hKey,("Attributes"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from Attributes
 			RegCloseKey(hKey); //Closes the key.
 			cout << printerName << " Attributes: ";
-			for (int i = 0; i < 5; i++){
-				cout << UINT(value[0]);
+			for (int i = 0; i < 4; i++){
+				iTemp = int(value[i]);
+				cout << iTemp;
 			}
 			cout << "\n";
+
+			stringstream ss;
+
+			ss << sTemp; //Adds to stream.
+			ss >> hex >> iTemp; //Converts the hex to a decimal
+			//cout << "Test: " << iTemp; //Out puts it as a test.
 		}
 
 		//RegCloseKey(hKey); //Closes the key.

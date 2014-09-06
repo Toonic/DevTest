@@ -5,6 +5,9 @@
 #include <string>;
 #include <fstream>;
 #include <direct.h>;
+#include <sstream>;
+
+#include "C:\curl\include\curl\curl.h";
 
 using namespace std;
 
@@ -18,7 +21,7 @@ public:
 	void GetDefaultSpoolFileDirectory();
 	void CreateFolder();
 	void PostToLink();
-	void GetPOSTLink();
+	bool GetPOSTLink();
 	void MoveFiles();
 
 	void GetAttributesValue(string printerName);
