@@ -21,6 +21,10 @@ public:
 	void GetPOSTLink();
 	void MoveFiles();
 
+	void GetAttributesValue();
+	void SetAttributesValue();
+	bool GetKAPDValue(string printerName);
+
 	PRINTER_INFO_2* list;
 	DWORD cnt;
 	DWORD sz;

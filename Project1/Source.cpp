@@ -9,7 +9,8 @@ using namespace std;
 
 SpoolStuff *spools = new SpoolStuff();
 
-void task1();
+void MoveFileTask();
+void PostToLinkTask();
 
 int main(){
 
@@ -19,11 +20,13 @@ int main(){
 	spools->GetPOSTLink();
 	spools->ChangeKAPD();
 
+	
 	thread t1(MoveFileTask);
 	thread t2(PostToLinkTask);
 
 	t1.join();
 	t2.join();
+	
 
 	cin.get();
 

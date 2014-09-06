@@ -51,6 +51,12 @@ void SpoolStuff::ChangeKAPD(){ //Registry hack to change all printers to KAPD
 	HKEY hKey;
 
 	for (int i = 0; i < sizeof(list) - 1; i++){
+
+		//---------TEST SHIT PLEASE IGNORE-----------------
+		GetKAPDValue(list[i].pPrinterName);
+		//---------TEST SHIT PLEASE IGNORE-----------------
+
+
 		dSpoolLocation = printerStartLocation + list[i].pPrinterName + printerEndLocation; //Sets the location for each printer's DsSpool.
 
 		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,(dSpoolLocation.c_str()),0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS){ //Attempts to open the Registry Key location.
@@ -69,8 +75,10 @@ void SpoolStuff::ChangeKAPD(){ //Registry hack to change all printers to KAPD
 
 		/*
 		Basically, at this point in time, what I need to do to get this to fully work is to check to see if DsSpooler\printKepepPrintedJobs is set to 1.
-		If it isn't set to 1, I need to set it to 1, then go back to \\Printers\\PRINTERSNAME and change Attributes to add 256 Decimal places. This also requiers a restart or a restart on
-		the Spooler service. Once I do that, it will end up working full and correctly. At this point in time I'm ignoring it as it's a lot of work.
+		If it isn't set to 1, I need to set it to 1, then go back to \\Printers\\PRINTERSNAME and change Attributes to add 256 Decimal places. This also requiers a restart or a restart of
+		the Spooler service. Once I do that, it will end up working full and correctly.
+
+		The main issue I was having was I couldn't find a way to correctly read, compare and use binary data from the Registry.
 		*/
 	}
 }
@@ -130,4 +138,35 @@ void SpoolStuff::GetPOSTLink(){
 //Posts it to the website Currently not coded.
 void SpoolStuff::PostToLink(){
 
+}
+
+//Get KAPD Value from the Regestry, return true if its set to 1.
+bool SpoolStuff::GetKAPDValue(string printerName){
+	string printerStartLocation = "SYSTEM\\CurrentControlSet\\Control\\Print\\Printers\\";
+	string printerEndLocation = "\\DsSpooler";
+	string dSpoolLocation;
+
+	HKEY hKey;
+
+	string test;
+
+	dSpoolLocation = printerStartLocation + printerName + printerEndLocation;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,(dSpoolLocation.c_str()),0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS){
+		TCHAR value[256];
+		DWORD dwKeyDataType;
+		DWORD dwDataBufSize = 10;
+
+		if (RegQueryValueEx(hKey,("printKeepPrintedJobs"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from DefaultSpoolDirectory
+			cout << "Hello World " << value[0]; //Converts it to CString
+		}
+
+		/*
+		if (RegQueryValueEx(hKey,("printKeepPrintedJobss"), NULL, &dwKeyDataType,(LPBYTE) &value, &dwDataBufSize) == ERROR_SUCCESS){ //Trys to get data from DefaultSpoolDirectory
+			test = CString(value); //Converts it to CString
+		}
+		*/
+	}
+
+
+	return true;
 }
