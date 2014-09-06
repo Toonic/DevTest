@@ -8,6 +8,7 @@
 
 using namespace std;
 
+//SpoolStuff class. I couldn't think of a better name.
 class SpoolStuff{
 public:
 	SpoolStuff(void);
@@ -24,9 +25,6 @@ public:
 	DWORD cnt;
 	DWORD sz;
 	DWORD Level;
-	DWORD test;
-	LPDEVMODE pDevModeX;
-	int i;
 
 	string SpoolLocation;
 	string SiteLocation;

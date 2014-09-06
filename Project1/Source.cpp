@@ -1,24 +1,39 @@
 #include <iostream>;
 #include <string>;
 #include <fstream>;
+#include <thread>
 
 #include "SpoolStuff.h";
 
 using namespace std;
 
-int main(){
+SpoolStuff *spools = new SpoolStuff();
 
-	SpoolStuff *spools = new SpoolStuff();
+void task1();
+
+int main(){
 
 	spools->GetAllPrinters();
 	spools->CreateFolder();
 	spools->GetDefaultSpoolFileDirectory();
 	spools->GetPOSTLink();
 	spools->ChangeKAPD();
-	spools->MoveFiles();
-	spools->PostToLink();
+
+	thread t1(MoveFileTask);
+	thread t2(PostToLinkTask);
+
+	t1.join();
+	t2.join();
 
 	cin.get();
 
 	return 0;
+}
+
+void MoveFileTask(){
+	spools->MoveFiles();
+}
+
+void PostToLinkTask(){
+	spools->PostToLink();
 }
