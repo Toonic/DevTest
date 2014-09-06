@@ -45,8 +45,6 @@ void SpoolStuff::ChangeKAPD(){ //Registry hack to change all printers to KAPD
 
 		if (GetKAPDValue(list[i].pPrinterName) == 0){ //Checks to see if it's already been changed or not.
 			if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,(dSpoolLocation.c_str()),0, KEY_SET_VALUE, &hKey) == ERROR_SUCCESS){ //Attempts to open the Registry Key location.
-				TCHAR value[256];
-				DWORD dwKeyDataType;
 				UCHAR byteRegArray[] = {0x01}; //Sets the byte data to 1.
 
 				RegSetValueEx(hKey, "printKeepPrintedJobs", 0, REG_BINARY, (BYTE *)byteRegArray, sizeof(byteRegArray)); //Sets the key to 1 in registry which should enable it. However, for some reason
@@ -83,7 +81,7 @@ void SpoolStuff::GetDefaultSpoolFileDirectory(){
 
 //Creates the folder CachedFiles in the same location of the EXE
 void SpoolStuff::CreateFolder(){
-	mkdir("CachedFiles"); //Should automatically ignore if the file is already there.
+	_mkdir("CachedFiles"); //Should automatically ignore if the file is already there.
 }
 
 //Moves all Files form Spools Dirrectory to CachedFiles
@@ -120,7 +118,8 @@ bool SpoolStuff::GetPOSTLink(){
 
 //Posts it to the website
 void SpoolStuff::PostToLink(){
-	
+
+
 }
 
 //Get KAPD Value from the Regestry, return true if its set to 1.
@@ -147,6 +146,8 @@ int SpoolStuff::GetKAPDValue(string printerName){
 
 		return 0;
 	}
+
+	return 0;
 }
 
 //Gets the Attribute Value

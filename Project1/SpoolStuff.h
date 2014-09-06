@@ -1,13 +1,11 @@
-#include <windows.h>;
-#include <winspool.h>;
-#include <iostream>;
-#include <atlstr.h>;
-#include <string>;
-#include <fstream>;
-#include <direct.h>;
-#include <sstream>;
-
-#include "C:\curl\include\curl\curl.h";
+#include <windows.h>
+#include <winspool.h>
+#include <iostream>
+#include <atlstr.h>
+#include <string>
+#include <fstream>
+#include <direct.h>
+#include <sstream>
 
 using namespace std;
 
